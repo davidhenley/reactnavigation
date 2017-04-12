@@ -5,7 +5,7 @@ import {
   View,
   Button
 } from 'react-native';
-import { StackNavigator } from 'react-navigation';
+import { StackNavigator, TabNavigator } from 'react-navigation';
 
 class HomeScreen extends Component {
   render() {
@@ -23,6 +23,33 @@ class HomeScreen extends Component {
 }
 
 class ChatScreen extends Component {
+  static navigationOptions = {
+    title: ({ state }) => {
+      if (state.params.mode === 'info') {
+        return `${state.params.user}'s Contact Info`;
+      }
+      return `Chat with ${state.params.user}`;
+    },
+    header: ({ state, setParams }) => {
+      // The navigation prop has functions like setParams, goBack, and navigate.
+      let right = (
+        <Button
+          title={`${state.params.user}'s info`}
+          onPress={() => setParams({ mode: 'info' })}
+        />
+      );
+      if (state.params.mode === 'info') {
+        right = (
+          <Button
+            title="Done"
+            onPress={() => setParams({ mode: 'none' })}
+          />
+        );
+      }
+      return { right };
+    }
+  }
+
   render() {
     const { user } = this.props.navigation.state.params;
     return (
@@ -33,9 +60,46 @@ class ChatScreen extends Component {
   }
 }
 
+class RecentChatsScreen extends Component {
+  render() {
+    return (
+      <View>
+        <Text>List of recent contacts</Text>
+        <Button
+          onPress={() => this.props.navigation.navigate('Chat', { user: 'Lucy' })}
+          title="Chat with Lucy"
+        />
+      </View>
+    );
+  }
+}
+
+class AllContactsScreen extends Component {
+  render() {
+    return (
+      <View>
+        <Text>List of all contacts</Text>
+        <Button
+          onPress={() => this.props.navigation.navigate('Chat', { user: 'Lucy' })}
+          title="Chat with Lucy"
+        />
+      </View>
+    );
+  }
+}
+
+const MainScreenNavigator = TabNavigator({
+  Recent: {
+    screen: RecentChatsScreen
+  },
+  All: {
+    screen: AllContactsScreen
+  }
+});
+
 const SimpleApp = StackNavigator({
   Home: {
-    screen: HomeScreen,
+    screen: MainScreenNavigator,
     navigationOptions: {
       title: 'Welcome'
     }
